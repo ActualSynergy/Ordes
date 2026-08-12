@@ -1,27 +1,24 @@
 // Calculate metrics for visualization and analysis
 
-use crate::modules::satellite::Satellite;
+use crate::modules::entities::BaseEntity;
 
 #[derive(Debug, Clone)]
-pub struct SatelliteMetrics {
+pub struct EntityMetrics {
     pub total_mass: f64,
     pub center_of_mass: (f64, f64, f64),
     pub bounding_box: (f64, f64, f64),
-    pub component_count: usize,
 }
 
 pub struct MetricsCalculator;
 
 impl MetricsCalculator {
-    pub fn calculate(satellite: &Satellite) -> SatelliteMetrics {
-        let total_mass = satellite.mass;
-        let component_count = satellite.components.len();
+    pub fn calculate(entity: &BaseEntity) -> EntityMetrics {
+        let total_mass = entity.mass;
 
-        SatelliteMetrics {
+        EntityMetrics {
             total_mass,
             center_of_mass: (0.0, 0.0, 0.0),
-            bounding_box: (100.0, 100.0, 100.0),
-            component_count,
+            bounding_box: (entity.dimensions.width, entity.dimensions.height, entity.dimensions.depth),
         }
     }
 }

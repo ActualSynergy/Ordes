@@ -2,8 +2,9 @@
 // Main library entry point
 
 pub mod modules {
-    pub mod satellite;
+    pub mod entities;
     pub mod components;
+    pub mod assembly;
     pub mod simulation;
     pub mod collaboration;
     pub mod rendering;
@@ -11,11 +12,13 @@ pub mod modules {
 }
 
 pub mod config;
+pub mod layers;
 
 // Re-export commonly used items
 pub use modules::{
-    satellite::*,
+    entities::*,
     components::*,
+    assembly::*,
     simulation::*,
     collaboration::*,
     rendering::*,

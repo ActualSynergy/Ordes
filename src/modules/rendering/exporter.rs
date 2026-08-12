@@ -1,6 +1,6 @@
-// Export satellite designs to various 3D formats
+// Export designs to various 3D formats
 
-use crate::modules::satellite::Satellite;
+use crate::modules::entities::BaseEntity;
 
 #[derive(Debug, Clone)]
 pub enum ExportFormat {
@@ -14,33 +14,33 @@ pub struct ExportEngine;
 
 impl ExportEngine {
     pub async fn export(
-        satellite: &Satellite,
+        entity: &BaseEntity,
         format: ExportFormat,
     ) -> Result<Vec<u8>, String> {
         match format {
-            ExportFormat::STL => Self::export_stl(satellite),
-            ExportFormat::STEP => Self::export_step(satellite),
-            ExportFormat::URDF => Self::export_urdf(satellite),
-            ExportFormat::GLTF => Self::export_gltf(satellite),
+            ExportFormat::STL => Self::export_stl(entity),
+            ExportFormat::STEP => Self::export_step(entity),
+            ExportFormat::URDF => Self::export_urdf(entity),
+            ExportFormat::GLTF => Self::export_gltf(entity),
         }
     }
 
-    fn export_stl(_satellite: &Satellite) -> Result<Vec<u8>, String> {
+    fn export_stl(_entity: &BaseEntity) -> Result<Vec<u8>, String> {
         // TODO: Implement STL export
         Ok(vec![])
     }
 
-    fn export_step(_satellite: &Satellite) -> Result<Vec<u8>, String> {
+    fn export_step(_entity: &BaseEntity) -> Result<Vec<u8>, String> {
         // TODO: Implement STEP export
         Ok(vec![])
     }
 
-    fn export_urdf(_satellite: &Satellite) -> Result<Vec<u8>, String> {
+    fn export_urdf(_entity: &BaseEntity) -> Result<Vec<u8>, String> {
         // TODO: Implement URDF export
         Ok(vec![])
     }
 
-    fn export_gltf(_satellite: &Satellite) -> Result<Vec<u8>, String> {
+    fn export_gltf(_entity: &BaseEntity) -> Result<Vec<u8>, String> {
         // TODO: Implement glTF export
         Ok(vec![])
     }

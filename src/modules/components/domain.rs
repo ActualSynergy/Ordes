@@ -17,7 +17,7 @@ pub struct Component {
     pub created_at: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum ComponentType {
     Processor,
     Sensor,
@@ -28,6 +28,7 @@ pub enum ComponentType {
     Thruster,
     ThermalControl,
     PowerDistribution,
+    StructuralBeam,
     Other(String),
 }
 
