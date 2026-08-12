@@ -1,9 +1,12 @@
-// Simulation module - Physics and performance simulations
+// Simulation module
 
-pub mod engine;
 pub mod physics;
+pub mod models;
+pub mod domains;
 pub mod validator;
+pub mod engine;
 
 pub use engine::*;
 pub use physics::*;
-pub use validator::*;
+pub use models::*;
+pub use domains::*;

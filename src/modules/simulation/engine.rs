@@ -1,41 +1,43 @@
-// Main simulation engine orchestration
+// Main simulation engine
 
 use serde::{Deserialize, Serialize};
+use crate::modules::simulation::domains::{
+    OrbitalSimulation, ThermalSimulation, PowerSimulation,
+    OrbitalSimulationResult, ThermalSimulationResult, PowerSimulationResult,
+};
+use crate::modules::simulation::models::{OrbitalElements, PowerBudget};
+use crate::modules::simulation::physics::Vector3;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SimulationConfig {
-    pub altitude: f64,          // km
-    pub inclination: f64,       // degrees
-    pub duration: u64,          // seconds
-    pub time_step: f64,         // seconds
+pub struct SimulationRequest {
+    pub entity_id: String,
+    pub assembly_id: String,
+    pub scenario: SimulationScenario,
+    pub enabled_simulations: Vec<SimulationType>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SimulationResult {
-    pub orbital: OrbitalResult,
-    pub thermal: ThermalResult,
-    pub power: PowerResult,
+pub struct SimulationScenario {
+    pub duration: f64,
+    pub time_step: f64,
+    pub sun_direction: Vector3,
+    pub atmospheric_density: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum SimulationType {
+    Orbital,
+    Thermal,
+    Power,
+    Collision,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct OrbitalResult {
-    pub apogee: f64,
-    pub perigee: f64,
-    pub period: f64,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ThermalResult {
-    pub max_temp: f64,
-    pub min_temp: f64,
-    pub avg_temp: f64,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PowerResult {
-    pub avg_consumption: f64,
-    pub max_consumption: f64,
-    pub energy_balance: f64,
+pub struct SimulationOutput {
+    pub orbital: Option<OrbitalSimulationResult>,
+    pub thermal: Option<ThermalSimulationResult>,
+    pub power: Option<PowerSimulationResult>,
+    pub timestamp: String,
 }
 
 pub struct SimulationEngine;
@@ -47,25 +49,45 @@ impl SimulationEngine {
 
     pub async fn run_simulation(
         &self,
-        _config: SimulationConfig,
-    ) -> Result<SimulationResult, String> {
-        // TODO: Implement actual simulation
-        Ok(SimulationResult {
-            orbital: OrbitalResult {
-                apogee: 550.0,
-                perigee: 450.0,
-                period: 94.5,
-            },
-            thermal: ThermalResult {
-                max_temp: 85.0,
-                min_temp: -40.0,
-                avg_temp: 22.5,
-            },
-            power: PowerResult {
-                avg_consumption: 15.0,
-                max_consumption: 25.0,
-                energy_balance: 50.0,
-            },
-        })
+        request: SimulationRequest,
+    ) -> Result<SimulationOutput, String> {
+        let mut output = SimulationOutput {
+            orbital: None,
+            thermal: None,
+            power: None,
+            timestamp: chrono::Utc::now().to_rfc3339(),
+        };
+
+        for sim_type in &request.enabled_simulations {
+            match sim_type {
+                SimulationType::Orbital => {
+                    let elements = OrbitalElements {
+                        semi_major_axis: 6.741e6,
+                        eccentricity: 0.0,
+                        inclination: 0.0,
+                        raan: 0.0,
+                        argument_of_perigee: 0.0,
+                        true_anomaly: 0.0,
+                    };
+                    let sim = OrbitalSimulation::new(elements);
+                    let result = sim.run(request.scenario.duration, request.scenario.time_step).await;
+                    output.orbital = Some(result);
+                }
+                SimulationType::Thermal => {
+                    let sim = ThermalSimulation::new();
+                    let result = sim.run(request.scenario.duration, request.scenario.time_step).await;
+                    output.thermal = Some(result);
+                }
+                SimulationType::Power => {
+                    let budget = PowerBudget::new();
+                    let sim = PowerSimulation::new(budget);
+                    let result = sim.run(request.scenario.duration, request.scenario.time_step).await;
+                    output.power = Some(result);
+                }
+                _ => {}
+            }
+        }
+
+        Ok(output)
     }
 }
